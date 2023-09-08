@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-""" alculates the fewest number of operations needed to result in exactly n H """
+""" alculates the fewest number of 
+operations needed to result in exactly n H """
 
 
 def minOperations(n):
