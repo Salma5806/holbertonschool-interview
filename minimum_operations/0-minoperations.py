@@ -3,16 +3,17 @@
 
 
 def minOperations(n):
-    """ Min number of operations """
+    """min opearation"""
     if n <= 1:
         return 0
-
-    operations = [0] * (n + 1)
-
+    
+    dp = [0] * (n + 1)
+    
     for i in range(2, n + 1):
-        operations[i] = float('inf')
-        for j in range(1, i):
+        dp[i] = i
+        
+        for j in range(2, i // 2 + 1):
             if i % j == 0:
-                operations[i] = min(operations[i], operations[j] + i // j)
-
-    return operations[n]
+                dp[i] = min(dp[i], dp[j] + i // j)
+    
+    return dp[n]
