@@ -6,49 +6,66 @@
  * Return: 1 if is palindrome or 0 if not
  */
 
-
 int is_palindrome(listint_t **head)
 {
-    listint_t *slow_ptr = *head;
-    listint_t *fast_ptr = *head;
-    listint_t *prev = NULL;
-    listint_t *second_half;
-    int is_palindrome = 1;
+	int length = list_length(head);
+	int half_length = length / 2;
+	int i, if_palindrome = 1;
+	listint_t *reversed_head;
+	listint_t *current = *head;
+	listint_t *current_reversed;
 
-    if (*head == NULL || (*head)->next == NULL)
-        return (1);
+	reversed_head = *head;
+	for (i = 0; i < half_length; i++)
+		reversed_head = reversed_head->next;
+	if (length % 2 != 0)
+		reversed_head = reversed_head->next;
+	reversed_head = reversed(&reversed_head);
+	current_reversed = reversed_head;
+	current = *head;
+	while (current_reversed != NULL)
+	{
+		if (current_reversed->n != current->n)
+			if_palindrome = 0;
+		current_reversed = current_reversed->next;
+		current = current->next;
+	}
+	return (if_palindrome);
+}
 
-    while (fast_ptr != NULL && fast_ptr->next != NULL)
-    {
-        fast_ptr = fast_ptr->next->next;
-        prev = slow_ptr;
-        slow_ptr = slow_ptr->next;
-    }
+/**
+ * list_length - Get the length of a linked list
+ * @head: linked list head
+ * Return: lenght
+ */
 
-    if (fast_ptr != NULL)
-    {
-        second_half = slow_ptr->next;
-    }
-    else
-    {
-        second_half = slow_ptr;
-    }
+int list_length(listint_t **head)
+{
+	int i;
+	listint_t *current = *head;
 
-    prev->next = NULL;
-    reverse_list(&second_half);
+	for (i = 0; current != NULL; i++)
+		current = current->next;
+	return (i);
+}
 
-    is_palindrome = compare_lists(*head, second_half);
+/**
+ * reversed - function that reversed a linked list
+ * @head: double pointer
+ * Return: Address of the new element
+ */
 
-    reverse_list(&second_half);
+listint_t *reversed(listint_t **head)
+{
+	listint_t *prev = NULL, *current = *head, *next = NULL;
 
-    if (prev != NULL)
-    {
-        prev->next = slow_ptr;
-    }
-    else
-    {
-        *head = slow_ptr;
-    }
-
-    return is_palindrome;
+	while (current != NULL)
+	{
+		next = current->next;
+		current->next = prev;
+		prev = current;
+		current = next;
+	}
+	*head = prev;
+	return (*head);
 }
