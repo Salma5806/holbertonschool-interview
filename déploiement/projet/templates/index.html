@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html >
+<!--From https://codepen.io/frytyler/pen/EGdtg-->
+<head>
+  <meta charset="UTF-8">
+  <title>ML API</title>
+  <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  
+</head>
+<body>
+ <div class="login">
+	<h1>Performance</h1>
+
+     <!-- Main Input For Receiving Query to our ML -->
+    <form action="{{ url_for('predict')}}"method="post">
+
+    	<input type="text" name="FI_PortfolioHoldingsAs-OfDate" placeholder="FI_PortfolioHoldingsAs-OfDate" required="required" />
+      <input type="text" name="P_PrivatePrisonOperators_a_isempty" placeholder="P_PrivatePrisonOperators_a_isempty" required="required" />
+		  <input type="text" name="P_PrisonIndustrialComplexGrade" placeholder="P_PrisonIndustrialComplexGrade" required="required" />
+      <input type="text" name=" F_FossilFuelGrade" placeholder=" F_FossilFuelGrade" required="required" />
+      <input type="text" name="F_RelativeCarbonFootprint" placeholder="F_RelativeCarbonFootprint" required="required" />
+      <input type="text" name=" P_PrisonIndustryHR_w_isempty" placeholder=" P_PrisonIndustryHR_w_isempty" required="required" />
+      <input type="text" name="F_CarbonUnderground_a_isempty" placeholder="F_CarbonUnderground_a_isempty" required="required" />
+      <input type="text" name="F_FossilFuelHoldings_w" placeholder="F_FossilFuelHoldings_w" required="required" />
+      <input type="text" name="F_Oil/GasIndustry_a_isempty" placeholder="F_Oil/GasIndustry_a_isempty" required="required" />
+      <input type="text" name="P_PrisonIndustry_a_isempty" placeholder="P_PrisonIndustry_a_isempty" required="required" />
+      <input type="text" name=" P_BorderIndustryHR_a_isempty" placeholder=" P_BorderIndustryHR_a_isempty" required="required" />
+      <input type="text" name="F_RelativeCarbonIntensity" placeholder="F_RelativeCarbonIntensity" required="required" />
+      <input type="text" name="F_FossilFuelHoldings_a_isempty" placeholder="F_FossilFuelHoldings_a_isempty" required="required" />
+      <input type="text" name=" P_AllFlaggedHR_w_isempty" placeholder=" P_AllFlaggedHR_w_isempty" required="required" />
+      <input type="text" name="F_Oil/GasIndustry_w" placeholder="F_Oil/GasIndustry_w" required="required" />
+      <input type="text" name="F_Fossil-FiredUtilities_a_isempty" placeholder="F_Fossil-FiredUtilities_a_isempty" required="required" />
+      <input type="text" name="P_AllFlagged_w " placeholder="P_AllFlagged_w " required="required" />
+      <input type="text" name="F_CarbonUnderground_w" placeholder="F_CarbonUnderground_w" required="required" />
+      <input type="text" name="F_Fossil-FiredUtilities_w" placeholder="F_Fossil-FiredUtilities_w" required="required" />
+      <input type="text" name="F_CoalIndustry_w_isempty" placeholder="F_CoalIndustry_w_isempty" required="required" />
+      <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
+    </form>
+
+   <br>
+   <br>
+   {{ prediction_text }}
+
+ </div>
+
+
+</body>
+</html>
