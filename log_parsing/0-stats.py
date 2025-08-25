@@ -1,33 +1,68 @@
-#!/usr/bin/python3
+    #!/usr/bin/env python3
 """
-Log parsing
-"""
+Reads stdin line by line and computes metrics.
 
+- Accepts only lines matching:
+  <IP> - [<date>] "GET /projects/260 HTTP/1.1" <status> <file size>
+- After every 10 lines read (valid or not) and on KeyboardInterrupt,
+  prints:
+    File size: <total size>
+    <status>: <count>            # for 200, 301, 400, 401, 403, 404, 405, 500
+- Safe when imported (runs only when executed as script).
+"""
 
 import sys
+import re
+
+LOG_RE = re.compile(
+    r'^(\d{1,3}(?:\.\d{1,3}){3}) - \[(.*?)\] "GET /projects/260 HTTP/1\.1" (\d{3}) (\d+)$'
+)
+
+TRACKED_CODES = ('200', '301', '400', '401', '403', '404', '405', '500')
 
 
-i = 0
-FileSize = 0
-STATUS = {'200': 0, '301': 0,
-          '400': 0, '401': 0,
-          '403': 0, '404': 0,
-          '405': 0, '500': 0}
-try:
-    for line in sys.stdin:
-        i += 1
-        sp = line.split(' ')
-        if len(sp) > 2:
-            FileSize += int(sp[-1])
-            if sp[-2] in STATUS:
-                STATUS[sp[-2]] += 1
-        if i % 10 == 0:
-            print("File size: {}".format(FileSize))
-            for key, value in sorted(STATUS.items()):
-                if value != 0:
-                    print("{}: {}".format(key, value))
-finally:
-    print("File size: {}".format(FileSize))
-    for key, value in sorted(STATUS.items()):
-            if value != 0:
-                print("{}: {:d}".format(key, value))
+def print_stats(total_size, status_counts):
+    """Prints the accumulated statistics."""
+    print(f"File size: {total_size}")
+    for code in TRACKED_CODES:
+        if status_counts.get(code):
+            print(f"{code}: {status_counts[code]}")
+
+
+def main():
+    total_size = 0
+    status_counts = {}
+    lines_read = 0
+
+    try:
+        for line in sys.stdin:
+            lines_read += 1
+            line = line.strip()
+
+            m = LOG_RE.match(line)
+            if m:
+                status, size = m.group(3), m.group(4)
+                # file size is guaranteed numeric by regex
+                try:
+                    total_size += int(size)
+                except ValueError:
+                    # Shouldn't happen due to regex, but be defensive
+                    pass
+
+                # Count only tracked integer status codes
+                if status in TRACKED_CODES:
+                    status_counts[status] = status_counts.get(status, 0) + 1
+
+            if lines_read % 10 == 0:
+                print_stats(total_size, status_counts)
+
+    except KeyboardInterrupt:
+        print_stats(total_size, status_counts)
+        raise
+    finally:
+        # Print at EOF as well (and also after CTRL+C, once more is okay)
+        print_stats(total_size, status_counts)
+
+
+if __name__ == "__main__":
+    main()
