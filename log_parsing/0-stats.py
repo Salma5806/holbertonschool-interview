@@ -1,68 +1,38 @@
 #!/usr/bin/python3
-"""
-Reads stdin line by line and computes metrics.
-
-- Accepts only lines matching:
-  <IP> - [<date>] "GET /projects/260 HTTP/1.1" <status> <file size>
-- After every 10 lines read (valid or not) and on KeyboardInterrupt,
-  prints:
-    File size: <total size>
-    <status>: <count>            # for 200, 301, 400, 401, 403, 404, 405, 500
-- Safe when imported (runs only when executed as script).
-"""
-
 import sys
-import re
-
-LOG_RE = re.compile(
-    r'^(\d{1,3}(?:\.\d{1,3}){3}) - \[(.*?)\] "GET /projects/260 HTTP/1\.1" (\d{3}) (\d+)$'
-)
-
-TRACKED_CODES = ('200', '301', '400', '401', '403', '404', '405', '500')
-
 
 def print_stats(total_size, status_counts):
-    """Prints the accumulated statistics."""
+    """Print the accumulated statistics."""
     print(f"File size: {total_size}")
-    for code in TRACKED_CODES:
-        if status_counts.get(code):
+    for code in sorted(status_counts.keys()):
+        if status_counts[code] > 0:
             print(f"{code}: {status_counts[code]}")
 
-
-def main():
+if __name__ == "__main__":
     total_size = 0
-    status_counts = {}
-    lines_read = 0
+    status_counts = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
+    line_count = 0
 
     try:
         for line in sys.stdin:
-            lines_read += 1
-            line = line.strip()
+            parts = line.split()
+            if len(parts) < 9:  # Skip malformed lines
+                continue
+            try:
+                status = int(parts[-2])
+                size = int(parts[-1])
+            except ValueError:
+                continue
 
-            m = LOG_RE.match(line)
-            if m:
-                status, size = m.group(3), m.group(4)
-                # file size is guaranteed numeric by regex
-                try:
-                    total_size += int(size)
-                except ValueError:
-                    # Shouldn't happen due to regex, but be defensive
-                    pass
+            if status in status_counts:
+                status_counts[status] += 1
+            total_size += size
+            line_count += 1
 
-                # Count only tracked integer status codes
-                if status in TRACKED_CODES:
-                    status_counts[status] = status_counts.get(status, 0) + 1
-
-            if lines_read % 10 == 0:
+            if line_count % 10 == 0:
                 print_stats(total_size, status_counts)
-
     except KeyboardInterrupt:
-        print_stats(total_size, status_counts)
-        raise
+        pass
     finally:
-        # Print at EOF as well (and also after CTRL+C, once more is okay)
+        # Print stats at the end or on KeyboardInterrupt
         print_stats(total_size, status_counts)
-
-
-if __name__ == "__main__":
-    main()
