@@ -1,59 +1,45 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 """
-Reads stdin line by line and computes metrics:
-- Total file size
-- Number of lines by status code (200, 301, 400, 401, 403, 404, 405, 500)
-Prints statistics every 10 lines and on CTRL+C.
+Reads lines from standard input and computes metrics:
+- total file size
+- number of lines per status code (200, 301, 400, 401, 403, 404, 405, 500)
+Prints metrics every 10 lines or on keyboard interrupt.
 """
 
 import sys
 
-STATUS_CODES = [200, 301, 400, 401, 403, 404, 405, 500]
-
-
-def print_stats(total_size, status_count):
-    """Prints total file size and counts by status code."""
+def print_stats(total_size, status_counts):
+    """Prints the total file size and status code counts in ascending order"""
     print(f"File size: {total_size}")
-    for code in sorted(status_count):
-        if status_count[code] > 0:
-            print(f"{code}: {status_count[code]}")
+    for code in sorted(status_counts.keys()):
+        if status_counts[code] > 0:
+            print(f"{code}: {status_counts[code]}")
 
-
-def main():
+if __name__ == "__main__":
     total_size = 0
-    status_count = {code: 0 for code in STATUS_CODES}
+    status_codes = [200, 301, 400, 401, 403, 404, 405, 500]
+    status_counts = {code: 0 for code in status_codes}
     line_count = 0
 
     try:
         for line in sys.stdin:
-            line = line.strip()
-            if not line:
-                continue
-
-            parts = line.split()
-            # Expect at least status code and size at the end
-            if len(parts) < 2:
-                continue
-
+            parts = line.strip().split()
+            if len(parts) < 9:
+                continue  # skip invalid lines
             try:
                 status = int(parts[-2])
                 size = int(parts[-1])
             except ValueError:
-                continue
-
-            if status in STATUS_CODES:
-                status_count[status] += 1
+                continue  # skip lines with non-integer status or size
+            if status in status_counts:
+                status_counts[status] += 1
             total_size += size
             line_count += 1
 
             if line_count % 10 == 0:
-                print_stats(total_size, status_count)
-
+                print_stats(total_size, status_counts)
     except KeyboardInterrupt:
         pass
     finally:
-        print_stats(total_size, status_count)
-
-
-if __name__ == "__main__":
-    main()
+        if line_count % 10 != 0 or line_count == 0:
+            print_stats(total_size, status_counts)
