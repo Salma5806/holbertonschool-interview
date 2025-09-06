@@ -1,4 +1,12 @@
 #!/usr/bin/python3
+"""
+0-stats.py
+Reads log lines from stdin and computes metrics:
+- Total file size
+- Count of specific status codes (200, 301, 400, 401, 403, 404, 405, 500)
+
+Metrics are printed every 10 lines and/or on keyboard interruption (CTRL+C).
+"""
 import sys
 
 def print_stats(total_size, status_counts):
@@ -34,5 +42,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     finally:
-        # Print stats at the end or on KeyboardInterrupt
         print_stats(total_size, status_counts)
